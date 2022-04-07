@@ -2,14 +2,15 @@
 
 ## 处理源文件生成id和ip对应关系
 idip(){
-echo "" > si_idip.txt
+rm -rf  si_idip.txt
 
-for item in {1..10}; do
+#for item in {1..10}; do
 
-   egrep 'InstanceId|PublicAddresses' si${item}.txt  -A 1  \
-   |egrep "InstanceId|43|101|129"  | sed 's/[[:space:]]//g'   | awk '{if(NR%2==0){printf $0 "\n"}else{printf"%s#",$0}}'  >> si_idip.txt
+#   egrep 'InstanceId|PublicAddresses' si${item}.txt  -A 1  \
+#   |egrep "InstanceId|43|101|129"  | sed 's/[[:space:]]//g'   | awk '{if(NR%2==0){printf $0 "\n"}else{printf"%s#",$0}}'  >> si_idip.txt
 
-done
+egrep  -E 'InstanceId|[0-9]{1,3}(\.[0-9]{1,3}){3}' si*.txt    | egrep -v "10.0(\.[0-9]{1,3}){2}"  | awk '{$1=""; print$0}'|  sed 's/[[:space:]]//g'| xargs -n2 -d'\n' >> si_idip.txt
+#done
 }
 
 idip
@@ -40,3 +41,7 @@ done
 }
 
 # finalize()
+
+## 生成100个id项目
+
+cat si_idip.txt  | awk -F ":" '{print$2}' | awk '{print $1}'  | xargs -d "\n" -n100 > final.txt
